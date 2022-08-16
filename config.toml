@@ -1,0 +1,42 @@
+# basic page settings
+baseURL = 'https://ramongomez.xyz'
+languageCode = 'en-us'
+title = 'Ramón Gómez'
+theme = "gokarna"
+staticDir = ['static', 'images']
+
+[menu]
+    [[menu.main]]
+        identifier = "blog"
+        url = "/blog/"
+        name = "blog"
+        weight = 1
+
+    [[menu.main]]
+        identifier = "hobbies"
+        url = "/hobbies/"
+        name = "hobbies"
+        weight = 2
+    [[menu.main]]
+        identifier = "now"
+        url = "/now/"
+        name = "now"
+        weight = 3
+    [[menu.main]]
+        identifier = "about"
+        url = "/about/"
+        name = "about"
+        weight = 4
+             
+[params]
+
+    customHeadHTML = "<script>console.log('testing');</script>"
+    accentColor = "#00000"
+
+    avatarURL = "/memoji_avatar.jpg"
+    avatarSize = "size-xs"
+
+    description = "Hello World"
+
+    footer = "Ramón Gómez"
+
