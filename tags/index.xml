@@ -5,6 +5,43 @@
     <link>https://ramongomez.xyz/tags/</link>
     <description>Recent content in Tags on Ramón Gómez</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://ramongomez.xyz/tags/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    <lastBuildDate>Sat, 26 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://ramongomez.xyz/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>async</title>
+      <link>https://ramongomez.xyz/tags/async/</link>
+      <pubDate>Sat, 26 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://ramongomez.xyz/tags/async/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>blog</title>
+      <link>https://ramongomez.xyz/tags/blog/</link>
+      <pubDate>Sat, 26 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://ramongomez.xyz/tags/blog/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>deadlocks</title>
+      <link>https://ramongomez.xyz/tags/deadlocks/</link>
+      <pubDate>Sat, 26 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://ramongomez.xyz/tags/deadlocks/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>dev</title>
+      <link>https://ramongomez.xyz/tags/dev/</link>
+      <pubDate>Sat, 26 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://ramongomez.xyz/tags/dev/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        :root {
+            --accent-color: #454ADE;
+        }
+    </style>
+
+    
+    
+    
+    
+    
+    
+
+    
+    <title>Avoid deadlocks!</title>
+    <meta name="description" content="Let&#39;s talk about deadlocks and some ways of avoiding them">
+    <meta name="keywords" content='blog, dev, deadlocks, async'>
+
+    <meta property="og:url" content="https://ramongomez.xyz/dev/concurrency_avoiding_simple_deadlocks/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Avoid deadlocks!">
+    <meta property="og:description" content="Let&#39;s talk about deadlocks and some ways of avoiding them">
+    <meta property="og:image" content="/path/to/image.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Avoid deadlocks!">
+    <meta name="twitter:description" content="Let&#39;s talk about deadlocks and some ways of avoiding them">
+    <meta property="twitter:domain" content="https://ramongomez.xyz/dev/concurrency_avoiding_simple_deadlocks/">
+    <meta property="twitter:url" content="https://ramongomez.xyz/dev/concurrency_avoiding_simple_deadlocks/">
+    <meta name="twitter:image" content="/path/to/image.png">
+
+    
+    <link rel="canonical" href="https://ramongomez.xyz/dev/concurrency_avoiding_simple_deadlocks/" />
+
+    <link rel="stylesheet" type="text/css" href="https://ramongomez.xyz/css/normalize.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" type="text/css" href="https://ramongomez.xyz/css/main.css">
+    <link disabled id="dark-theme" rel="stylesheet" href="https://ramongomez.xyz/css/dark.css">
+
+    <script src="https://ramongomez.xyz/js/svg-injector.min.js"></script>
+    <script src="https://ramongomez.xyz/js/feather-icons.min.js"></script>
+    <script src="https://ramongomez.xyz/js/main.js"></script>
+
+    
+    
+    <script>console.log('testing');</script>
+    
+</head>
+<body>
+        <script type="text/javascript">
+            
+            setThemeByUserPref();
+        </script><header class="header">
+    <nav class="header-nav">
+
+        
+        <div class="avatar">
+            <a href="https://ramongomez.xyz">
+                <img src="https://ramongomez.xyz/memoji-animation-2d-v1.2.0-far.png" alt="avatar" />
+            </a>
+        </div>
+        
+
+        <div class="nav-title">
+            <a class="nav-brand" href="https://ramongomez.xyz">Ramón Gómez</a>
+        </div>
+
+        <div class="nav-links">
+            
+            <div class="nav-link">
+                <a href="https://ramongomez.xyz/dev/"> dev </a>
+            </div>
+            
+            <div class="nav-link">
+                <a href="https://ramongomez.xyz/books/"> books </a>
+            </div>
+            
+            <div class="nav-link">
+                <a href="https://ramongomez.xyz/coffee/"> coffee </a>
+            </div>
+            
+            <div class="nav-link">
+                <a href="https://ramongomez.xyz/now/"> now </a>
+            </div>
+            
+            <div class="nav-link">
+                <a href="https://ramongomez.xyz/about/"> about </a>
+            </div>
+            
+
+            <span class="nav-icons-divider"></span>
+            <div class="nav-link dark-theme-toggle">
+                <a>
+                    <span id="theme-toggle-icon" data-feather="moon"></span>
+                </a>
+            </div>
+
+            <div class="nav-link" id="hamburger-menu-toggle">
+                <a>
+                    <span data-feather="menu"></span>
+                </a>
+            </div>
+
+            
+            <ul class="nav-hamburger-list visibility-hidden">
+                
+                <li class="nav-item">
+                    <a href="https://ramongomez.xyz/dev/"> dev </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="https://ramongomez.xyz/books/"> books </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="https://ramongomez.xyz/coffee/"> coffee </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="https://ramongomez.xyz/now/"> now </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="https://ramongomez.xyz/about/"> about </a>
+                </li>
+                
+                <li class="nav-item dark-theme-toggle">
+                    <a>
+                        <span id="theme-toggle-icon" data-feather="moon"></span>
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+</header>
+<main id="content">
+    <div class="post container">
+    <div class="post-header-section">
+        <h1>Avoid deadlocks!</h1>
+        <small role="doc-subtitle">Let&#39;s talk about deadlocks and some ways of avoiding them</small>
+        <p class="post-date">
+            March 26, 2022
+        </p>
+
+        <ul class="post-tags">
+        
+            <li class="post-tag"><a href="https://ramongomez.xyz/tags/blog">blog</a></li>
+        
+            <li class="post-tag"><a href="https://ramongomez.xyz/tags/dev">dev</a></li>
+        
+            <li class="post-tag"><a href="https://ramongomez.xyz/tags/deadlocks">deadlocks</a></li>
+        
+            <li class="post-tag"><a href="https://ramongomez.xyz/tags/async">async</a></li>
+        
+        </ul>
+    </div>
+
+    <div class="post-content">
+        <p>
+            <h2 id="what-is-a-deadlock">What is a deadlock?</h2>
+<p>A deadlock, in computer science, refers to a specific condition when two or more processes are each waiting for another to release a resource the processes share. In other works, both processes are asking the  question, &ldquo;Hey, can you let me know when you&rsquo;re done with <strong>that</strong>? so I can continue&rdquo;, which clearly, is not being answered for any of them and hence the <strong>deadlock</strong>.</p>
+<h2 id="example-of-a-deadlock">Example of a deadlock</h2>
+<h3 id="example-environment">Example Environment</h3>
+<p>We will be explaining this example in <em>C#</em> for <em>.NET Framework</em> and <em>.NET Core</em>. Find <em>.NET Core 6</em> source code repo <a href="https://github.com/rgomezr/concurrency_deadlock">here</a></p>
+<h3 id="example-objective">Example Objective</h3>
+<p>We have a list of postcodes and we want to verify if the postcodes do really exist. For that, we will send a <code>POST</code> request to an API&rsquo;s endpoint to verify them. Our postodes will be stored in a <code>List&lt;string&gt;</code> called <code>postcodesList</code>, which will be the used as the parameter for the following action.</p>
+<h3 id="code">Code</h3>
+<h4 id="sub-action">sub-action</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">async</span> Task&lt;PostcodesResponse&gt; ArePostcodesValid(List&lt;<span style="color:#66d9ef">string</span>&gt; postcodesList)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/*Creating JSON Object containing the postcodes*/</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> postcodesData = <span style="color:#66d9ef">new</span> { postcodes = postcodesList.ToArray() };
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/*Parsing JSON Object to string*/</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">string</span> jsonPostcodesData = JsonConvert.SerializeObject(postcodesData);
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/* 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    Encapsulating json encoded in UTF8 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    format into content for POST HTTP Request 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> content = <span style="color:#66d9ef">new</span> System.Net.Http.StringContent(jsonPostcodesData, Encoding.UTF8, <span style="color:#e6db74">&#34;application/json&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> httpClient = HttpClientNoHeaderAccessor.HttpClient;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> response = <span style="color:#66d9ef">await</span> httpClient.PostAsync(BASEURL, content);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (response.IsSuccessStatusCode)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> dataResponse = <span style="color:#66d9ef">await</span> response.Content.ReadAsStringAsync();
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">/*Parsing string text reponse into PostcodesResponse Entity*/</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> JsonConvert.DeserializeObject&lt;PostcodesResponse&gt;(dataResponse);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="main-action">main-action</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">async</span> Task&lt;<span style="color:#66d9ef">bool</span>&gt; ValidatePostcodes()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    PostcodesResponse postcodesResponse = 
+</span></span><span style="display:flex;"><span>    CustomClasses.PostcodeAPIProcessor.ArePostcodesValid(postcodesToCheck).Result;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="code-flow">Code Flow</h3>
+<p>First of all, let&rsquo;s keep in mind that main-action refers to <code>ValidatePostcodes()</code> and sub-action refers to <code>ArePostcodesValid(postcodesList)</code>.</p>
+<ol>
+<li>main-action calls sub-action.</li>
+<li>Within the same context and thread started in main-action, sub-action starts a HTTP POST request by executing <code>PostAsync()</code> (which in this case, is <em>awaited</em>, which means that a background thread, different than main one from main-action, will be executing this task.).</li>
+<li><code>PostAsync()</code> first returns an uncompleted task, indicating that the TTP POST request is not completed yet.</li>
+<li>Therefore, sub-action <em>awaits</em> the task returned by <code>PostAsync()</code>. At this moment, the context is captured and it will be used to continue executing sub-action when the POST request is completed.</li>
+<li>After this, sub-action returns an uncompleted task to the top level method.</li>
+<li>Top level method, due to its <code>.Result</code> function, will be now synchronously waiting until sub-action is completed - This will block the context on the main thread as <code>.Result</code> is a <strong>synchronous wait</strong> (opposite of <em>await</em>).</li>
+<li>Eventually, the REST request will complete by the <strong>Thread Pool</strong> (a.k.a background threads), which will complete the task returned by <code>PostAsync()</code>.</li>
+<li>The continuation of the sub-action (code after line <code>var response = await httpClient.PostAsync(BASEURL, content);</code>) is ready to proceed, although it needs to have something crutial for it to continue its execution, <strong>the context</strong>, (which was previously captured in step <strong>4</strong>) so it can continue its execution.</li>
+<li>Deadlock happens - main-action is currently blocking the captured context waiting for the sub-action to complete. sub-action is waiting for the context to be free so it can complete its execution on main thread.</li>
+</ol>
+<h3 id="how-can-we-fix-this">How can we fix this?</h3>
+<p>There might be a few out there to avoid this deadlock but I&rsquo;ll go through 2 different ones, choosing between one or another depends on how you have your project setup.</p>
+<h4 id="using-configureawaitcontinueoncapturedcontextfalse">Using <code>ConfigureAwait(ContinueOnCapturedContext:false)</code></h4>
+<blockquote>
+<p>This solution will suit if you prefer to stick with synchronous code rather than asynchronous one.</p>
+</blockquote>
+<p>Keeping in mind steps above, a few things change now:</p>
+<ul>
+<li>Within step 4, due to specifying <code>ContinueOnCapturedContext:false</code>, context won&rsquo;t be captured at this point and this task will be given to the Thread Pool to continue.</li>
+<li>Within step 8, once <code>PostAsync()</code> completes, the Thread Pool won&rsquo;t need the main context anymore as it was specified to do so and will continue its execution through sub-action - This will then return its Task Result to the main-action, which was synchronously waiting for it. Code flow will continue.</li>
+</ul>
+<h4 id="using-asyncawait-operations">Using ASYNC/AWAIT operations</h4>
+<blockquote>
+<p>This solution will suit if you rather use async code flow, which in my opinion, is the <strong>best</strong> alternative due to the benefits async provides - I will go through this later on.</p>
+</blockquote>
+<p>We will change main-action to</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>PostcodesResponse postcodesResponse = 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> CustomClasses.PostcodeAPIProcessor.ArePostcodesValid(postcodesToCheck);
+</span></span></code></pre></div><ul>
+<li>Now, main thread will execute the main-action and will await for <code>ArePostcodesValid(postcodesToCheck)</code>, which means that current context will be captured and thread pool will execute this function in the background - The best part of this is that, while the background threads are working on that task, main thread is asynchronously waiting for it to end (<strong>async</strong>) - The fact that the main thread is asyncrhonously waiting, means that it will be used where is needed in other <code>async</code> code blocks (it won&rsquo;t be synchronously waiting without doing anything and wasting resources).</li>
+<li>Within sub-action, Thread pool will also await the function <code>PostAsync()</code>, its context will be captured and the task will also be handled to Thread pool to execute.</li>
+<li>Eventually, once <code>PostAsync()</code> returns with a result, the captured context will be used to continue sub-action&rsquo;s code returning result from sub-action to main-action.</li>
+<li>Main thread with its original context will be pinged with a signal that their execution through rest of main-action is ready to go - Main thread with its original context will come back to it and finish it.</li>
+</ul>
+
+        </p>
+    </div>
+</div>
+
+<aside class="post-toc">
+    <nav id="toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#what-is-a-deadlock">What is a deadlock?</a></li>
+    <li><a href="#example-of-a-deadlock">Example of a deadlock</a>
+      <ul>
+        <li><a href="#example-environment">Example Environment</a></li>
+        <li><a href="#example-objective">Example Objective</a></li>
+        <li><a href="#code">Code</a></li>
+        <li><a href="#code-flow">Code Flow</a></li>
+        <li><a href="#how-can-we-fix-this">How can we fix this?</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </nav>
+</aside>
+
+
+
+    
+
+        </main><footer class="footer">
+    <span>&copy; 2022 Ramón Gómez</span>
+    <span>
+        Made with &#10084;&#65039; using <a target="_blank" href="https://github.com/526avijitgupta/gokarna">Gokarna</a>
+    </span>
+</footer>
+</body>
+</html>

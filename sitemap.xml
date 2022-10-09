@@ -2,10 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://ramongomez.xyz/categories/</loc>
+    <loc>https://ramongomez.xyz/tags/async/</loc>
+    <lastmod>2022-03-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ramongomez.xyz/dev/concurrency_avoiding_simple_deadlocks/</loc>
+    <lastmod>2022-03-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ramongomez.xyz/tags/blog/</loc>
+    <lastmod>2022-03-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ramongomez.xyz/tags/deadlocks/</loc>
+    <lastmod>2022-03-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ramongomez.xyz/tags/dev/</loc>
+    <lastmod>2022-03-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ramongomez.xyz/dev/</loc>
+    <lastmod>2022-03-26T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ramongomez.xyz/</loc>
+    <lastmod>2022-03-26T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ramongomez.xyz/tags/</loc>
+    <lastmod>2022-03-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ramongomez.xyz/categories/</loc>
   </url>
 </urlset>
