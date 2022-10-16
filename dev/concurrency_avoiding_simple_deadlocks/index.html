@@ -163,7 +163,7 @@
     <div class="post-content">
         <p>
             <h2 id="what-is-a-deadlock">What is a deadlock?</h2>
-<p>A deadlock, in computer science, refers to a specific condition when two or more processes are each waiting for another to release a resource the processes share. In other works, both processes are asking the  question, &ldquo;Hey, can you let me know when you&rsquo;re done with <strong>that</strong>? so I can continue&rdquo;, which clearly, is not being answered for any of them and hence the <strong>deadlock</strong>.</p>
+<p>A deadlock, in computer science, refers to a specific condition when two or more processes are each waiting for another to release a resource the processes share. In other words, both processes are asking the  question, &ldquo;Hey, can you let me know when you&rsquo;re done with <strong>that</strong>? so I can continue&rdquo;, which clearly, is not being answered for any of them and hence the <strong>deadlock</strong>.</p>
 <h2 id="example-of-a-deadlock">Example of a deadlock</h2>
 <h3 id="environment">Environment</h3>
 <p>We will be explaining this example in <em>C#</em> for <em>.NET Core</em>. Find <em>.NET Core 6</em> source code repo <a href="https://github.com/rgomezr/concurrency_deadlock">here</a> (I talk more about the repo <a href="#more-about-the-github-repo">down below</a>)</p>
@@ -194,7 +194,6 @@
 </span></span><span style="display:flex;"><span>PostcodeAPI apiInstance = <span style="color:#66d9ef">new</span>();
 </span></span><span style="display:flex;"><span>Dictionary&lt;<span style="color:#66d9ef">bool</span>, <span style="color:#66d9ef">string</span>&gt; responseDict = apiInstance.IsUKPostcodeValid(ukPostcodeToCheck).Result;
 </span></span></code></pre></div><h3 id="code-flow">Code Flow</h3>
-<p>First of all, let&rsquo;s keep in mind that main-action refers to <code>ValidatePostcodes()</code> and sub-action refers to <code>ArePostcodesValid(postcodesList)</code>.</p>
 <ol>
 <li>main-action calls sub-action.</li>
 <li>Within the same context and thread started in main-action, sub-action starts a HTTP GET request by executing <code>GetAsync()</code> (which in this case, is <em>awaited</em>, which means that a background thread, different than main one from main-action, will be executing this task).</li>

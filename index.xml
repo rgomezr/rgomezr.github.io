@@ -13,7 +13,7 @@
       <pubDate>Sat, 26 Mar 2022 00:00:00 +0000</pubDate>
       
       <guid>https://ramongomez.xyz/dev/concurrency_avoiding_simple_deadlocks/</guid>
-      <description>What is a deadlock? A deadlock, in computer science, refers to a specific condition when two or more processes are each waiting for another to release a resource the processes share. In other works, both processes are asking the question, &amp;ldquo;Hey, can you let me know when you&amp;rsquo;re done with that? so I can continue&amp;rdquo;, which clearly, is not being answered for any of them and hence the deadlock.
+      <description>What is a deadlock? A deadlock, in computer science, refers to a specific condition when two or more processes are each waiting for another to release a resource the processes share. In other words, both processes are asking the question, &amp;ldquo;Hey, can you let me know when you&amp;rsquo;re done with that? so I can continue&amp;rdquo;, which clearly, is not being answered for any of them and hence the deadlock.
 Example of a deadlock Environment We will be explaining this example in C# for .</description>
     </item>
     
