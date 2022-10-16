@@ -5,7 +5,7 @@
 
     <style>
         :root {
-            --accent-color: #454ADE;
+            --accent-color: #429bf5;
         }
     </style>
 
@@ -19,7 +19,7 @@
     
     <title>Avoid deadlocks!</title>
     <meta name="description" content="Let&#39;s talk about deadlocks and some ways of avoiding them">
-    <meta name="keywords" content='blog, dev, deadlocks, async'>
+    <meta name="keywords" content='blog, dev, deadlocks, async, DevOps'>
 
     <meta property="og:url" content="https://ramongomez.xyz/dev/concurrency_avoiding_simple_deadlocks/">
     <meta property="og:type" content="website">
@@ -46,8 +46,6 @@
     <script src="https://ramongomez.xyz/js/main.js"></script>
 
     
-    
-    <script>console.log('testing');</script>
     
 </head>
 <body>
@@ -157,6 +155,8 @@
         
             <li class="post-tag"><a href="https://ramongomez.xyz/tags/async">async</a></li>
         
+            <li class="post-tag"><a href="https://ramongomez.xyz/tags/devops">DevOps</a></li>
+        
         </ul>
     </div>
 
@@ -165,53 +165,45 @@
             <h2 id="what-is-a-deadlock">What is a deadlock?</h2>
 <p>A deadlock, in computer science, refers to a specific condition when two or more processes are each waiting for another to release a resource the processes share. In other works, both processes are asking the  question, &ldquo;Hey, can you let me know when you&rsquo;re done with <strong>that</strong>? so I can continue&rdquo;, which clearly, is not being answered for any of them and hence the <strong>deadlock</strong>.</p>
 <h2 id="example-of-a-deadlock">Example of a deadlock</h2>
-<h3 id="example-environment">Example Environment</h3>
-<p>We will be explaining this example in <em>C#</em> for <em>.NET Framework</em> and <em>.NET Core</em>. Find <em>.NET Core 6</em> source code repo <a href="https://github.com/rgomezr/concurrency_deadlock">here</a></p>
-<h3 id="example-objective">Example Objective</h3>
-<p>We have a list of postcodes and we want to verify if the postcodes do really exist. For that, we will send a <code>POST</code> request to an API&rsquo;s endpoint to verify them. Our postodes will be stored in a <code>List&lt;string&gt;</code> called <code>postcodesList</code>, which will be the used as the parameter for the following action.</p>
+<h3 id="environment">Environment</h3>
+<p>We will be explaining this example in <em>C#</em> for <em>.NET Core</em>. Find <em>.NET Core 6</em> source code repo <a href="https://github.com/rgomezr/concurrency_deadlock">here</a> (I talk more about the repo <a href="#more-about-the-github-repo">down below</a>)</p>
+<h3 id="objective">Objective</h3>
+<p>We have any postcode and we want to verify if they do exist. For that, we will send a <code>GET</code> request to an API&rsquo;s endpoint to verify them (big fan of this service, give them love <a href="https://github.com/ideal-postcodes/postcodes.io">here</a>). Our postode will be a <code>string</code> called <code>ukPostcodeToCheck</code>, which will be the used as the parameter for the following sub action.</p>
 <h3 id="code">Code</h3>
 <h4 id="sub-action">sub-action</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">async</span> Task&lt;PostcodesResponse&gt; ArePostcodesValid(List&lt;<span style="color:#66d9ef">string</span>&gt; postcodesList)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">async</span> Task&lt;Dictionary&lt;<span style="color:#66d9ef">bool</span>, <span style="color:#66d9ef">string</span>&gt;&gt; IsUKPostcodeValid(<span style="color:#66d9ef">string</span> ukPostcode)
 </span></span><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/*Creating JSON Object containing the postcodes*/</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> postcodesData = <span style="color:#66d9ef">new</span> { postcodes = postcodesList.ToArray() };
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/*Parsing JSON Object to string*/</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">string</span> jsonPostcodesData = JsonConvert.SerializeObject(postcodesData);
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/* 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    Encapsulating json encoded in UTF8 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    format into content for POST HTTP Request 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> content = <span style="color:#66d9ef">new</span> System.Net.Http.StringContent(jsonPostcodesData, Encoding.UTF8, <span style="color:#e6db74">&#34;application/json&#34;</span>);
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> httpClient = HttpClientNoHeaderAccessor.HttpClient;
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> response = <span style="color:#66d9ef">await</span> httpClient.PostAsync(BASEURL, content);
+</span></span><span style="display:flex;"><span>    HttpClient httpClient = <span style="color:#66d9ef">new</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">string</span> uri = GET_BASE_URL + ukPostcode;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> response = <span style="color:#66d9ef">await</span> httpClient.GetAsync(uri);
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (response.IsSuccessStatusCode)
 </span></span><span style="display:flex;"><span>    {
 </span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> dataResponse = <span style="color:#66d9ef">await</span> response.Content.ReadAsStringAsync();
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">/*Parsing string text reponse into PostcodesResponse Entity*/</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> JsonConvert.DeserializeObject&lt;PostcodesResponse&gt;(dataResponse);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Dictionary&lt;<span style="color:#66d9ef">bool</span>, <span style="color:#66d9ef">string</span>&gt; { [<span style="color:#66d9ef">true</span>] = dataResponse };
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>
 </span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">null</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Dictionary&lt;<span style="color:#66d9ef">bool</span>, <span style="color:#66d9ef">string</span>&gt; { [<span style="color:#66d9ef">false</span>] = <span style="color:#e6db74">&#34;&#34;</span> };
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h4 id="main-action">main-action</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">async</span> Task&lt;<span style="color:#66d9ef">bool</span>&gt; ValidatePostcodes()
-</span></span><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    PostcodesResponse postcodesResponse = 
-</span></span><span style="display:flex;"><span>    CustomClasses.PostcodeAPIProcessor.ArePostcodesValid(postcodesToCheck).Result;
-</span></span><span style="display:flex;"><span>}
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">string</span> ukPostcodeToCheck = <span style="color:#e6db74">&#34;CT5 3NL&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>PostcodeAPI apiInstance = <span style="color:#66d9ef">new</span>();
+</span></span><span style="display:flex;"><span>Dictionary&lt;<span style="color:#66d9ef">bool</span>, <span style="color:#66d9ef">string</span>&gt; responseDict = apiInstance.IsUKPostcodeValid(ukPostcodeToCheck).Result;
 </span></span></code></pre></div><h3 id="code-flow">Code Flow</h3>
 <p>First of all, let&rsquo;s keep in mind that main-action refers to <code>ValidatePostcodes()</code> and sub-action refers to <code>ArePostcodesValid(postcodesList)</code>.</p>
 <ol>
 <li>main-action calls sub-action.</li>
-<li>Within the same context and thread started in main-action, sub-action starts a HTTP POST request by executing <code>PostAsync()</code> (which in this case, is <em>awaited</em>, which means that a background thread, different than main one from main-action, will be executing this task.).</li>
-<li><code>PostAsync()</code> first returns an uncompleted task, indicating that the TTP POST request is not completed yet.</li>
-<li>Therefore, sub-action <em>awaits</em> the task returned by <code>PostAsync()</code>. At this moment, the context is captured and it will be used to continue executing sub-action when the POST request is completed.</li>
+<li>Within the same context and thread started in main-action, sub-action starts a HTTP GET request by executing <code>GetAsync()</code> (which in this case, is <em>awaited</em>, which means that a background thread, different than main one from main-action, will be executing this task).</li>
+<li><code>GetAsync()</code> first returns an uncompleted task, indicating that the HTTP GET request is not completed yet.</li>
+<li>Therefore, sub-action <em>awaits</em> the task returned by <code>GetAsync()</code>. At this moment, the context is captured and it will be used to continue executing sub-action when the GET request is completed.</li>
 <li>After this, sub-action returns an uncompleted task to the top level method.</li>
 <li>Top level method, due to its <code>.Result</code> function, will be now synchronously waiting until sub-action is completed - This will block the context on the main thread as <code>.Result</code> is a <strong>synchronous wait</strong> (opposite of <em>await</em>).</li>
-<li>Eventually, the REST request will complete by the <strong>Thread Pool</strong> (a.k.a background threads), which will complete the task returned by <code>PostAsync()</code>.</li>
-<li>The continuation of the sub-action (code after line <code>var response = await httpClient.PostAsync(BASEURL, content);</code>) is ready to proceed, although it needs to have something crutial for it to continue its execution, <strong>the context</strong>, (which was previously captured in step <strong>4</strong>) so it can continue its execution.</li>
+<li>Eventually, the REST request will complete by the <strong>Thread Pool</strong> (a.k.a background threads), which will complete the task returned by <code>GetAsync()</code>.</li>
+<li>The continuation of the sub-action (code after line <code>var response = await httpClient.GetAsync(uri);</code>) is ready to proceed, although it needs to have something crutial for it to continue its execution, <strong>the context</strong>, (which was previously captured in step <strong>4</strong>) so it can continue its execution.</li>
 <li>Deadlock happens - main-action is currently blocking the captured context waiting for the sub-action to complete. sub-action is waiting for the context to be free so it can complete its execution on main thread.</li>
 </ol>
 <h3 id="how-can-we-fix-this">How can we fix this?</h3>
@@ -223,20 +215,37 @@
 <p>Keeping in mind steps above, a few things change now:</p>
 <ul>
 <li>Within step 4, due to specifying <code>ContinueOnCapturedContext:false</code>, context won&rsquo;t be captured at this point and this task will be given to the Thread Pool to continue.</li>
-<li>Within step 8, once <code>PostAsync()</code> completes, the Thread Pool won&rsquo;t need the main context anymore as it was specified to do so and will continue its execution through sub-action - This will then return its Task Result to the main-action, which was synchronously waiting for it. Code flow will continue.</li>
+<li>Within step 8, once <code>GetAsync()</code> completes, the Thread Pool won&rsquo;t need the main context anymore as it was specified to do so and will continue its execution through sub-action - This will then return its Task Result to the main-action, which was synchronously waiting for it. Code flow will continue.</li>
 </ul>
 <h4 id="using-asyncawait-operations">Using ASYNC/AWAIT operations</h4>
 <blockquote>
-<p>This solution will suit if you rather use async code flow, which in my opinion, is the <strong>best</strong> alternative due to the benefits async provides - I will go through this later on.</p>
+<p>This solution will suit if you rather use async code flow, which in my opinion, is the <strong>best</strong> alternative due to the benefits async provides (Big topic for another post&hellip;)</p>
 </blockquote>
 <p>We will change main-action to</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>PostcodesResponse postcodesResponse = 
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> CustomClasses.PostcodeAPIProcessor.ArePostcodesValid(postcodesToCheck);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>Dictionary&lt;<span style="color:#66d9ef">bool</span>, <span style="color:#66d9ef">string</span>&gt; responseDict = <span style="color:#66d9ef">await</span> apiInstance.IsUKPostcodeValid(ukPostcodeToCheck);
 </span></span></code></pre></div><ul>
-<li>Now, main thread will execute the main-action and will await for <code>ArePostcodesValid(postcodesToCheck)</code>, which means that current context will be captured and thread pool will execute this function in the background - The best part of this is that, while the background threads are working on that task, main thread is asynchronously waiting for it to end (<strong>async</strong>) - The fact that the main thread is asyncrhonously waiting, means that it will be used where is needed in other <code>async</code> code blocks (it won&rsquo;t be synchronously waiting without doing anything and wasting resources).</li>
-<li>Within sub-action, Thread pool will also await the function <code>PostAsync()</code>, its context will be captured and the task will also be handled to Thread pool to execute.</li>
-<li>Eventually, once <code>PostAsync()</code> returns with a result, the captured context will be used to continue sub-action&rsquo;s code returning result from sub-action to main-action.</li>
+<li>Now, main thread will execute the main-action and will await for <code>apiInstance.IsUKPostcodeValid(ukPostcodeToCheck)</code>, which means that current context will be captured and thread pool will execute this function in the background - The best part of this is that, while the background threads are working on that task, main thread is asynchronously waiting for it to end (<strong>async</strong>) - The fact that the main thread is asyncrhonously waiting, means that it will be used where is needed in other <code>async</code> code blocks (it won&rsquo;t be synchronously waiting without doing anything and wasting resources).</li>
+<li>Within sub-action, Thread pool will also await the function <code>GetAsync()</code>, its context will be captured and the task will also be handled to Thread pool to execute.</li>
+<li>Eventually, once <code>GetAsync()</code> returns with a result, the captured context will be used to continue sub-action&rsquo;s code returning result from sub-action to main-action.</li>
 <li>Main thread with its original context will be pinged with a signal that their execution through rest of main-action is ready to go - Main thread with its original context will come back to it and finish it.</li>
+</ul>
+<h2 id="more-about-the-github-repo">More about the GitHub Repo</h2>
+<p>The GitHub repo that holds the source code of this example, is also being an environment to test and use different DevOps practises, such as CI/CD implementations.</p>
+<blockquote>
+<p>I know, unnecessary overkilled, but, best for learning :p</p>
+</blockquote>
+<p>So far, this repo has the following done:</p>
+<ul>
+<li>Containerise with Docker this .NET Core 6 App.</li>
+<li>Applied various branch protection rules to avoid bugs being merged into <code>main</code> (production).</li>
+<li>Set up different GitHub Actions (when creating a PR into <code>main</code>) towards a good CI/CD environment:
+<ul>
+<li>Security scan for vulnerabilities.</li>
+<li>Check if .NET Core app builds.</li>
+<li>Check by executing unit tests (xUnit) from source code.</li>
+</ul>
+</li>
+<li>Using tags &amp; releases together with the creation of a package through an action.</li>
 </ul>
 
         </p>
@@ -250,13 +259,14 @@
     <li><a href="#what-is-a-deadlock">What is a deadlock?</a></li>
     <li><a href="#example-of-a-deadlock">Example of a deadlock</a>
       <ul>
-        <li><a href="#example-environment">Example Environment</a></li>
-        <li><a href="#example-objective">Example Objective</a></li>
+        <li><a href="#environment">Environment</a></li>
+        <li><a href="#objective">Objective</a></li>
         <li><a href="#code">Code</a></li>
         <li><a href="#code-flow">Code Flow</a></li>
         <li><a href="#how-can-we-fix-this">How can we fix this?</a></li>
       </ul>
     </li>
+    <li><a href="#more-about-the-github-repo">More about the GitHub Repo</a></li>
   </ul>
 </nav>
     </nav>
